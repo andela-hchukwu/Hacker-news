@@ -15,8 +15,8 @@ class HackerServiceMock: StoriesService {
         self.story = story
     }
 
-    override func getUsers(_ callBack: @escaping ([Story]) -> Void) {
-        callBack(story)
+    override func execute(completion: @escaping ([Story]) -> ()) {
+        completion(story)
     }
 
 }
@@ -26,7 +26,7 @@ class StoriesViewMock : NSObject, StoriesView {
     var setEmptyStoriesCalled = false
 
     func setStories(_ users: [StoriesViewData]) {
-        setUsersCalled = true
+        setStoriesCalled = true
     }
 
     func setEmptyStories() {
@@ -42,6 +42,9 @@ class StoriesViewMock : NSObject, StoriesView {
 }
 
 class StoriesPresenterTest: XCTestCase {
+
+    let storiesServiceMock = HackerServiceMock(story:[Story(by: "John", descendants: 2134, id: 3098, score: 21, time: Date(), title: "test hacker news", type: "sports", url: "https://www.youtube.com/watch?v=XPPMSfCdUng&index=15&list=RDM9GcyHpptMk"),
+                                                     Story(by: "Henry", descendants: 32198, id: 2134, score: 32, time: Date(), title: "another test", type: "Eng", url: "https://app.farmlogs.com/#marketing/2018")])
 
     override func setUp() {
         super.setUp()
@@ -65,17 +68,17 @@ class StoriesPresenterTest: XCTestCase {
         }
     }
 
-    func testShouldSetEmptyIfNoUserAvailable() {
+    func testShouldSetUsers() {
         //given
-        let userViewMock = UserViewMock()
-        let userPresenterUnderTest = UserPresenter(userService: emptyUsersServiceMock)
-        userPresenterUnderTest.attachView(userViewMock)
+        let storiesViewMock = StoriesViewMock()
+        let storiesPresenterUnderTest = StoriesPresenter(storyService: storiesServiceMock)
+        storiesPresenterUnderTest.attachView(storiesViewMock)
 
         //when
-        userPresenterUnderTest.getUsers()
+        storiesPresenterUnderTest.getNewStories()
 
         //verify
-        XCTAssertTrue(userViewMock.setEmptyUsersCalled)
+        XCTAssertTrue(storiesViewMock.setStoriesCalled)
     }
 
 }

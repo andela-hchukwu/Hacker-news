@@ -12,7 +12,7 @@ import SwiftyJSON
 
 class StoriesService {
 
-    func execute(completion: @escaping ([Story]) -> ()) {
+    func execute(completion: @escaping ([Story]?) -> (), failure: @escaping (Error) -> ()) {
         let baseUrl = "https://hacker-news.firebaseio.com/v0/newstories.json?print=pretty"
         Alamofire.request(baseUrl, method: .get, parameters: nil, encoding: JSONEncoding.default, headers: nil).responseString { (response) in
 
@@ -38,17 +38,22 @@ class StoriesService {
                                     }
                                 } catch {
                                     print(error.localizedDescription)
+                                    failure(error)
                                 }
                             }
                         }
                     }
                 } catch {
                     print(error.localizedDescription)
+                    failure(error)
                 }
 
+            } else {
+                failure(response.result.error!)
             }
 
         }
 
     }
 }
+
